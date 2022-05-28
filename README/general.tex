@@ -1,0 +1,33 @@
+\evensidemargin -0.3in
+\oddsidemargin -0.3in
+\topmargin -1.0in
+\textheight 10.2in
+\textwidth 7in
+\date{}
+\author{}
+\usepackage[luatex]{xcolor,graphicx}
+\newcounter{answer}
+
+%\usepackage[T1]{fontenc}
+%\usepackage[utf8]{inputenc}
+
+\usepackage{mathtools,amsthm,amssymb}
+%\usepackage{newtxtext}
+%\usepackage[varg]{newtxmath}
+%\usepackage{textcomp}           
+
+\usepackage{bm}
+\usepackage{enumitem}
+\setlist[enumerate]{resume,label={問\arabic*}}
+
+%\setlist[enumerate]{resume,label={問\arabic*},
+%  itemindent=1zw, leftmargin=2zw,labelsep=1zw, itemsep=.5\baselineskip}
+
+
+\usepackage{ifthen}
+\usepackage{amsmath}
+\usepackage{luatexja}
+\usepackage{luacode}
+\newcommand{\red}[1]{{\textcolor{red}{#1}}}
+\newcommand{\ifa}[1]{\ifthenelse{\value{answer}=1}{\red{#1}}{}}
+\newcommand{\ra}[0]{&\red{=}&}

@@ -1,0 +1,149 @@
+\documentclass[a4j, 12pt]{ltjarticle}
+\input{general.tex}
+
+
+\title{球面調和関数展開の説明}
+\author{堀田英之(千葉大学)}
+\begin{document}
+    \maketitle
+    \section{球面調和関数展開の基本公式}
+    球面調和関数展開の定義を示す。球面調和関数を$Y_\ell^m(\theta,\phi)$とすると
+    \begin{align}
+        \int d\Omega Y_{\ell}^m Y_{\ell'}^{m'} = 
+        \int_0^\pi \sin\theta d\theta\int_0^{2\pi} d\phi Y_{\ell}^m Y_{\ell'}^{m'} = \delta_{\ell\ell'}\delta_{mm'}
+    \end{align}
+    となるような定義が好ましい。\verb|numpy|の\verb|fftn|は以下のような計算を実行している。我々が利用するような状況では
+    \verb|norm='forward'|として, フーリエ順変換に$1/n$してもらった方が良いと思われる。(デフォルトでは\verb|norm='backward'|で逆変換に$1/n$がつく)
+    \begin{align}
+        \tilde{Q}_m &= \frac{1}{n}\sum_{j=0}^{n-1} Q_j \exp\left(-2\pi i \frac{jm}{n}\right) \\
+        Q_j &= \sum_{m=0}^{n-1} \tilde{Q}_m \exp\left(2\pi i\frac{jm}{n}\right)
+    \end{align}
+    $\exp(im\phi)$の直交性から
+    \begin{align}
+        \int_0^{2\pi} \exp\left[ i(m-m')\phi\right] d\phi = 2\pi \delta_{mm'}
+    \end{align}
+    これを離散化すると$2\pi=n\Delta \phi$, $\phi=j\Delta \phi$となるので, $\phi=2\pi j/n$となる。
+    \begin{align}
+        \int_0^{2\pi} \exp\left[ i(m-m')\phi\right] d\phi \sim
+        \sum_{j=0}^{n-1} \exp\left[2\pi i \frac{m-m'}{n}j\right] \Delta \phi 
+        \sim n\Delta \phi \delta_{kk'}
+    \end{align}
+    少し整理すると
+    \begin{align}
+        \frac{1}{n}\sum_{m=0}^{n-1} \exp\left[2\pi i \frac{m-m'}{n}j\right] \sim \delta_{kk'}
+    \end{align}
+    これを用いるとフーリエ変換, 逆変換で元に戻ることがわかる。つまり
+    \begin{align}
+        \sum_{m=0}^{n-1} \tilde{Q}_m \exp\left(2\pi i \frac{jm}{n}\right)
+        &= \frac{1}{n}\sum_{m=0}^{n-1} \sum_{j'=0}^{n-1}Q_{j'} \exp\left[2\pi i \frac{(j-j')m}{n}\right] \\
+        &= \sum_{j'=0}^{n-1}Q_{j'}\delta_{jj'} = Q_j
+    \end{align}
+    フーリエ変換の離散化から連続化への変換は$1/n = \Delta \phi/(2\pi)$なので
+    \begin{align}
+        \frac{1}{n}\sum_{j=0}^{n-1}Q_j \exp\left(-2\pi i \frac{jm}{n}\right)
+        &= \frac{1}{2\pi}\sum_{j=0}^{n-1}Q_j\exp\left(-im\phi \right) \Delta \phi \\
+        &\sim \frac{1}{2\pi}\int_0^{2\pi} Q(\phi) \exp(-im\phi)d\phi
+    \end{align}
+    となっているし, フーリエ逆変換は, $dm = 1$であることを考慮すると
+    \begin{align}
+        \sum_{m=0}^{n-1}\tilde{Q}_m\exp\left(2\pi i \frac{jm}{n}\right) \sim
+        \int_0^m \tilde{Q}(m) \exp\left(im\phi\right) dm
+    \end{align}
+    と書いても良いかもしれない。
+    \par
+    一方, ルジャンドル陪関数は以下のような漸化式を用いて計算する。
+    \begin{align}
+        P^m_m(\cos\theta) &= -\sqrt{\frac{2m+1}{2m}}\sin\theta P_{m-1}^{m-1}(\cos\theta) \\
+        P^m_\ell (\cos\theta) &= \sqrt{\frac{(2\ell+1)(2\ell-1)}{(\ell - m)(\ell + m)}}\cos\theta P_{\ell-1}^m
+        - \sqrt{\frac{(2\ell+1)}{(2\ell-3)}\frac{(\ell + m - 1)(\ell - m - 1)}{(\ell + m)(\ell - m)}}
+    \end{align}
+    という関係式を用いて, 
+    \begin{align}
+        P_0^0(\cos\theta) &= \frac{1}{\sqrt{4\pi}} \\
+        P_m^{m-1}(\cos\theta) &= 0
+    \end{align}
+    と定義すると
+    \begin{align}
+        \int_0^\pi P_\ell^m(\cos\theta)P_{\ell'}^m(\cos\theta) \sin\theta d\theta = \frac{1}{2\pi}
+    \end{align}
+    となる。このように定義されたルジャンドル陪関数と$\exp$を用いて球面調和関数
+    \begin{align}
+        Y_\ell^m(\theta,\phi) = P_\ell^m (\cos\theta)\exp(im\phi)
+    \end{align}
+    と定義して直交性を確認すると
+    \begin{align}
+        \int d\Omega (Y_\ell^m)^* Y_{\ell'}^{m'} &=
+        \int_0^{\pi} P_\ell^m(\cos\theta)P_{\ell'}^{m'}(\cos\theta)\sin\theta d\theta 
+        \int_0^{2\pi} \exp\left[i(m'-m)\phi\right] d\phi \\
+        &= 2\pi\int_0^{\pi} P_\ell^m(\cos\theta)P_{\ell'}^{m}(\cos\theta)\sin\theta d\theta \delta_{mm'} \\
+        & = \delta_{\ell\ell'}\delta_{mm'}
+    \end{align}
+    となる。
+    球面調和関数の完全性は
+    \begin{align}
+        \sum_{l=0}^{\infty} \sum_{m=-\ell}^{\ell} Y_\ell^{m*}(\theta,\phi)
+        Y_\ell^m(\theta',\phi') = \frac{\delta(\theta - \theta')\delta(\phi - \phi')}{\sin\theta}
+    \end{align}
+    と表されるので, 球面調和関数の正変換, 逆変換は以下のように表される。
+    \begin{align}
+        \widehat{Q}_\ell^m &= 
+        \int d\Omega Q(\theta,\phi) Y_\ell^m(\theta,\phi) \\
+        Q(\theta,\phi) &= \sum_{\ell=0}^\infty \sum_{m=-\ell}^\ell \widehat{Q}_\ell^m 
+        Y_\ell^{m*}(\theta,\phi)
+    \end{align}
+    元に戻ることを確かめる
+    \begin{align}
+        \sum_{\ell=0}^\infty \sum_{m=-\ell}^\ell \widehat{Q}_\ell^m 
+        Y_\ell^{m*}(\theta,\phi) =&
+        \sum_{\ell=0}^\infty \sum_{m=-\ell}^\ell  \int d\Omega' Q(\theta',\phi') Y_\ell^m(\theta',\phi')
+        Y_\ell^{m*}(\theta,\phi) \\
+        =& \int d\Omega' Q(\theta',\phi') \sum_{\ell=0}^\infty
+        \sum_{m=-\ell}^\ell  Y_\ell^{m*}(\theta,\phi)
+        Y_\ell^m(\theta',\phi') \\
+        =& \int d\Omega' Q(\theta',\phi')\frac{\delta(\theta-\theta')\delta(\phi-\phi')}{\sin\theta'} \\
+        =& \int_0^\pi d\theta' \int_0^{2\pi} d\phi'Q(\theta',\phi')\delta(\theta-\theta')\delta(\phi-\phi') \\
+        =& Q(\theta,\phi)
+    \end{align}
+    となるので, 元に戻る。
+    \section{領域を制限した場合の球面調和関数展開}
+    データが, $\theta_\mathrm{min}<\theta<\theta_\mathrm{max}$, $\phi_\mathrm{min}<\phi<\phi_\mathrm{max}$の範囲でしか定義されていない時の展開方向。
+    $\theta$方向は, 領域に制限はないが, $\phi_\mathrm{max}-\phi_\mathrm{min}=2\pi/N$ ($N$は自然数)である必要がある。するとフーリエ変換で得られる$\tilde{m}$と球面調和関数の$m$の間には, $\tilde{m}=Nm$の関係がある。データとして存在する$m$のみを計算していくという手法が良いであろう。\par
+    $\exp$の直交性のみ確認しておく。$\Phi = N\phi$として
+    \begin{align}
+        \int_0^{2\pi/N} \exp[i(\tilde{m}-\tilde{m}')\phi]d\phi
+        &= \int_0^{2\pi/N} \exp[i(m-m')N\phi]d\phi \\
+        &= \frac{1}{N}\int_0^{2\pi} \exp[i(m-m')\Phi] \Phi = 2\pi \delta_{mm'}        
+    \end{align}
+    離散フーリエ変換と連続フーリエ変換の関係は$1/n=N\Delta \phi/2\pi$なので
+    \begin{align}
+        \frac{1}{n}\sum_{j=0}^{n-1}Q_j \exp\left(-2\pi i \frac{jm}{n}\right)
+        &= \frac{N}{2\pi}\sum_{j=0}^{n-1}Q_j\exp\left(-iNm\phi \right) \Delta \phi \\
+        &\sim \int_0^{2\pi/N} Q(\phi) \exp(-im'\phi)d\phi
+    \end{align}    
+    \appendix
+    \section{デルタ関数}
+    \begin{align}
+        \int_{-\infty}^\infty dx \exp\left(ikx\right) = 2\pi\delta(x)
+    \end{align}
+    なので, $X = 2\pi x$として$dx = X/2\pi$なので
+    \begin{align}
+        \int_{-\infty}^\infty dx \exp\left(2\pi ikx\right) = \delta(x)
+    \end{align}
+    がわかる。よってフーリエ変換
+    \begin{align}
+        \tilde{Q}(k) = \int_{-\infty}^\infty dx Q(x) \exp\left(-2\pi i xk\right)
+    \end{align}
+    と定義すれば, フーリエ逆変換は
+    \begin{align}
+        Q(x) = \int_{-\infty}^\infty dk \tilde{Q}(k) \exp\left(2\pi i xk\right)
+    \end{align}
+    とすればよい。なぜならば
+    \begin{align}
+        \int_{-\infty}^\infty dk \tilde{Q}(k)
+        \exp\left[2\pi ixk\right] &= 
+        \int_{-\infty}^\infty dk \int_{-\infty}^\infty dx' Q(x')\exp[2\pi i (x-x')k] \\
+        &= \int_{-\infty}^\infty dx' Q(x') \int_{-\infty}^\infty dk exp[2\pi i(x-x')k] \\
+        &= \int_{-\infty}^\infty dx' Q(x') \delta(x-x') = Q(x')        
+    \end{align}
+    となり、元に戻る。
+\end{document}
