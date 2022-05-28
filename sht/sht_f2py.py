@@ -3,7 +3,7 @@
 #
 import numpy as np
 from numpy.fft import fftn, ifftn
-import legendre
+from . import legendre
 
 def sht(qq,y,z,N=1,direction=1):
     jx, kx = y.shape[0], z.shape[0]
