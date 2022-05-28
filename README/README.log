@@ -1,4 +1,4 @@
-This is LuaHBTeX, Version 1.13.0 (TeX Live 2021)  (format=lualatex 2022.1.27)  28 MAY 2022 09:06
+This is LuaHBTeX, Version 1.13.0 (TeX Live 2021)  (format=lualatex 2022.1.27)  28 MAY 2022 20:35
  restricted system commands enabled.
  file:line:error style messages enabled.
 **/Users/hotta/Dropbox/Study/sht_py/README/README.tex
@@ -640,12 +640,12 @@ Here is how much of LuaTeX's memory you used:
  156562,460012 words of node,token memory allocated
  27485 words of node memory still in use:
    11 hlist, 2 vlist, 5 rule, 6 glue, 402 kern, 4 sub_mlist, 1 glyph, 10688 attribute, 437 glue_spec, 561 attribute_list, 1 write, 125 user_defined nodes
-   avail lists: 1:20,2:30975,3:243,4:731,5:632,6:32,7:4789,8:77,9:2693,10:13
+   avail lists: 1:20,2:30996,3:243,4:731,5:623,6:32,7:4798,8:80,9:2684,10:13
  25929 multiletter control sequences out of 65536+600000
  99 fonts using 63625271 bytes
  127i,11n,124p,1803b,274s stack positions out of 5000i,500n,10000p,200000b,80000s
 </usr/local/texlive/2021/texmf-dist/fonts/opentype/public/lm/lmmono12-regular.otf></usr/local/texlive/2021/texmf-dist/fonts/opentype/public/haranoaji/HaranoAjiGothic-Medium.otf></usr/local/texlive/2021/texmf-dist/fonts/opentype/public/lm/lmroman12-bold.otf></usr/local/texlive/2021/texmf-dist/fonts/opentype/public/lm/lmroman12-regular.otf></usr/local/texlive/2021/texmf-dist/fonts/opentype/public/haranoaji/HaranoAjiMincho-Regular.otf></usr/local/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/local/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></usr/local/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/local/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/local/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/local/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy6.pfb></usr/local/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb>
-Output written on README.pdf (4 pages, 135494 bytes).
+Output written on README.pdf (4 pages, 135365 bytes).
 
 PDF statistics: 84 PDF objects out of 1000 (max. 8388607)
  54 compressed objects within 1 object stream

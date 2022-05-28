@@ -55,16 +55,16 @@
     \begin{align}
         P^m_m(\cos\theta) &= -\sqrt{\frac{2m+1}{2m}}\sin\theta P_{m-1}^{m-1}(\cos\theta) \\
         P^m_\ell (\cos\theta) &= \sqrt{\frac{(2\ell+1)(2\ell-1)}{(\ell - m)(\ell + m)}}\cos\theta P_{\ell-1}^m
-        - \sqrt{\frac{(2\ell+1)}{(2\ell-3)}\frac{(\ell + m - 1)(\ell - m - 1)}{(\ell + m)(\ell - m)}}
+        - \sqrt{\frac{(2\ell+1)}{(2\ell-3)}\frac{(\ell + m - 1)(\ell - m - 1)}{(\ell + m)(\ell - m)}}P_{\ell-2}^m
     \end{align}
     という関係式を用いて, 
     \begin{align}
-        P_0^0(\cos\theta) &= \frac{1}{\sqrt{4\pi}} \\
+        P_0^0(\cos\theta) &= \frac{1}{\sqrt{2}} \\
         P_m^{m-1}(\cos\theta) &= 0
     \end{align}
     と定義すると
     \begin{align}
-        \int_0^\pi P_\ell^m(\cos\theta)P_{\ell'}^m(\cos\theta) \sin\theta d\theta = \frac{1}{2\pi}
+        \int_0^\pi P_\ell^m(\cos\theta)P_{\ell'}^m(\cos\theta) \sin\theta d\theta = \delta_{\ell\ell'}
     \end{align}
     となる。このように定義されたルジャンドル陪関数と$\exp$を用いて球面調和関数
     \begin{align}
