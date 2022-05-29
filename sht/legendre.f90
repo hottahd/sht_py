@@ -149,7 +149,7 @@ subroutine backward(N,qq,y,z,jx,kx,fqq)
   double precision, dimension(0:jx-1) :: pm, pn, pn0, pm0, pm1, pm2 ! legendre function
   double precision, dimension(0:jx-1), intent(in) :: y  
   double precision, dimension(0:kx-1), intent(in) :: z
-  double complex, dimension(0:N*jx-1,0:kx-1), intent(in)  :: qq
+  double complex, dimension(0:N*kx/2-1,0:kx-1), intent(in)  :: qq
   double complex, dimension(0:jx-1,0:kx-1), intent(out) :: fqq
 
   dy = y(1) - y(0)
