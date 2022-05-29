@@ -10,7 +10,7 @@
     球面調和関数展開の定義を示す。球面調和関数を$Y_\ell^m(\theta,\phi)$とすると
     \begin{align}
         \int d\Omega Y_{\ell}^m Y_{\ell'}^{m'} = 
-        \int_0^\pi \sin\theta d\theta\int_0^{2\pi} d\phi Y_{\ell}^m Y_{\ell'}^{m'} = \delta_{\ell\ell'}\delta_{mm'}
+        \int_0^\pi \sin\theta d\theta\int_0^{2\pi} d\phi Y_{\ell}^m Y_{\ell'}^{m'} = 4\pi\delta_{\ell\ell'}\delta_{mm'}
     \end{align}
     となるような定義が好ましい。\verb|numpy|の\verb|fftn|は以下のような計算を実行している。我々が利用するような状況では
     \verb|norm='forward'|として, フーリエ順変換に$1/n$してもらった方が良いと思われる。(デフォルトでは\verb|norm='backward'|で逆変換に$1/n$がつく)
@@ -59,12 +59,12 @@
     \end{align}
     という関係式を用いて, 
     \begin{align}
-        P_0^0(\cos\theta) &= \frac{1}{\sqrt{2}} \\
+        P_0^0(\cos\theta) &= \sqrt{2}\\
         P_m^{m-1}(\cos\theta) &= 0
     \end{align}
     と定義すると
     \begin{align}
-        \int_0^\pi P_\ell^m(\cos\theta)P_{\ell'}^m(\cos\theta) \sin\theta d\theta = \delta_{\ell\ell'}
+        \int_0^\pi P_\ell^m(\cos\theta)P_{\ell'}^m(\cos\theta) \sin\theta d\theta = 2\delta_{\ell\ell'}
     \end{align}
     となる。このように定義されたルジャンドル陪関数と$\exp$を用いて球面調和関数
     \begin{align}
@@ -76,35 +76,68 @@
         \int_0^{\pi} P_\ell^m(\cos\theta)P_{\ell'}^{m'}(\cos\theta)\sin\theta d\theta 
         \int_0^{2\pi} \exp\left[i(m'-m)\phi\right] d\phi \\
         &= 2\pi\int_0^{\pi} P_\ell^m(\cos\theta)P_{\ell'}^{m}(\cos\theta)\sin\theta d\theta \delta_{mm'} \\
-        & = \delta_{\ell\ell'}\delta_{mm'}
+        & = 4\pi\delta_{\ell\ell'}\delta_{mm'}
     \end{align}
     となる。
     球面調和関数の完全性は
     \begin{align}
         \sum_{l=0}^{\infty} \sum_{m=-\ell}^{\ell} Y_\ell^{m*}(\theta,\phi)
-        Y_\ell^m(\theta',\phi') = \frac{\delta(\theta - \theta')\delta(\phi - \phi')}{\sin\theta}
+        Y_\ell^m(\theta',\phi') = \frac{4\pi\delta(\theta - \theta')\delta(\phi - \phi')}{\sin\theta}
     \end{align}
     と表されるので, 球面調和関数の正変換, 逆変換は以下のように表される。
     \begin{align}
         \widehat{Q}_\ell^m &= 
-        \int d\Omega Q(\theta,\phi) Y_\ell^m(\theta,\phi) \\
-        Q(\theta,\phi) &= \sum_{\ell=0}^\infty \sum_{m=-\ell}^\ell \widehat{Q}_\ell^m 
+        \frac{1}{4\pi}\int d\Omega Q(\theta,\phi) Y_\ell^m(\theta,\phi) \\
+        Q(\theta,\phi) &=\sum_{\ell=0}^\infty \sum_{m=-\ell}^\ell \widehat{Q}_\ell^m 
         Y_\ell^{m*}(\theta,\phi)
     \end{align}
+    離散フーリエ変換を連続フーリエ変換に直すときに, 自動的に$1/(2\pi)$のファクターは入るが, ルジャンドル関数の積分の時にどこかで$1/2$を追加する必要がある。
+    \par
     元に戻ることを確かめる
     \begin{align}
         \sum_{\ell=0}^\infty \sum_{m=-\ell}^\ell \widehat{Q}_\ell^m 
         Y_\ell^{m*}(\theta,\phi) =&
-        \sum_{\ell=0}^\infty \sum_{m=-\ell}^\ell  \int d\Omega' Q(\theta',\phi') Y_\ell^m(\theta',\phi')
+        \frac{1}{4\pi}\sum_{\ell=0}^\infty \sum_{m=-\ell}^\ell  \int d\Omega' Q(\theta',\phi') Y_\ell^m(\theta',\phi')
         Y_\ell^{m*}(\theta,\phi) \\
-        =& \int d\Omega' Q(\theta',\phi') \sum_{\ell=0}^\infty
+        =& \frac{1}{4\pi}\int d\Omega' Q(\theta',\phi') \sum_{\ell=0}^\infty
         \sum_{m=-\ell}^\ell  Y_\ell^{m*}(\theta,\phi)
         Y_\ell^m(\theta',\phi') \\
         =& \int d\Omega' Q(\theta',\phi')\frac{\delta(\theta-\theta')\delta(\phi-\phi')}{\sin\theta'} \\
         =& \int_0^\pi d\theta' \int_0^{2\pi} d\phi'Q(\theta',\phi')\delta(\theta-\theta')\delta(\phi-\phi') \\
         =& Q(\theta,\phi)
     \end{align}
-    となるので, 元に戻る。
+    となるので, 元に戻る。一方
+    \begin{align}
+        \frac{1}{4\pi}\int d\Omega Q(\theta,\phi)Y_\ell^m(\theta,\phi)
+        &= \frac{1}{4\pi}\int d\Omega\sum_{\ell'=0}^\infty \sum_{m'=-\ell'}^{\ell'} \widehat{Q}_{\ell'}^{m'}
+        Y_{\ell'}^{m'*}(\theta,\phi) Y_\ell^m \\
+        &= \frac{1}{4\pi}\sum_{\ell'=0}^\infty \sum_{m'=-\ell'}^{\ell'} \widehat{Q}_{\ell'}^{m'}
+        \int d\Omega Y_{\ell'}^{m'*}(\theta,\phi) Y_\ell^m(\theta,\phi) \\
+        &=\sum_{\ell'=0}^\infty \sum_{m'=-\ell'}^{\ell'} \widehat{Q}_{\ell'}^{m'}
+        \delta_{\ell\ell'}\delta_{mm'} = Q
+    \end{align}
+    
+    パワースペクトルと実空間の速度の関係を調べる。
+    \begin{align}
+        \sum_{\ell=0}^\infty\sum_{m=-\ell}^\ell
+        \widehat{Q}_\ell^{m*} \widehat{Q}_\ell^m
+        &= \frac{1}{(4\pi)^2}\sum_{\ell=0}^\infty\sum_{m=-\ell}^\ell
+        \int d\Omega Q(\theta,\phi) Y_\ell^{m*}(\theta,\phi)
+        \int d\Omega' Q(\theta',\phi') Y_\ell^m(\theta',\phi') \\
+        & = \frac{1}{(4\pi)^2}\int d\Omega \int d\Omega' Q(\theta,\phi)Q(\theta',\phi')
+        \sum_{\ell=0}^\infty\sum_{m=-\ell}^\ell Y_\ell^{m*}(\theta,\phi)Y_\ell^m(\theta',\phi') \\
+        & = \frac{1}{4\pi}\int d\Omega Q^2(\theta,\phi)
+    \end{align}
+    物理でよく使う定義では, パワースペクトル$P_m^\ell$は
+    \begin{align}
+        \sum_{\ell =0}^\infty \sum_{m=-\ell}^\ell \frac{P_\ell^m}{R}
+        &= \frac{1}{4\pi}\int d\Omega Q^2(\theta,\phi) \\
+    \end{align}
+    となるので、 
+    \begin{align}
+        P_\ell^m = R\widehat{Q}_\ell^{m*}\widehat{Q}_\ell^m
+    \end{align}
+    とするのが良いと思われる。
     \section{領域を制限した場合の球面調和関数展開}
     データが, $\theta_\mathrm{min}<\theta<\theta_\mathrm{max}$, $\phi_\mathrm{min}<\phi<\phi_\mathrm{max}$の範囲でしか定義されていない時の展開方向。
     $\theta$方向は, 領域に制限はないが, $\phi_\mathrm{max}-\phi_\mathrm{min}=2\pi/N$ ($N$は自然数)である必要がある。するとフーリエ変換で得られる$\tilde{m}$と球面調和関数の$m$の間には, $\tilde{m}=Nm$の関係がある。データとして存在する$m$のみを計算していくという手法が良いであろう。\par
@@ -142,7 +175,7 @@
         \int_{-\infty}^\infty dk \tilde{Q}(k)
         \exp\left[2\pi ixk\right] &= 
         \int_{-\infty}^\infty dk \int_{-\infty}^\infty dx' Q(x')\exp[2\pi i (x-x')k] \\
-        &= \int_{-\infty}^\infty dx' Q(x') \int_{-\infty}^\infty dk exp[2\pi i(x-x')k] \\
+        &= \int_{-\infty}^\infty dx' Q(x') \int_{-\infty}^\infty dk \exp[2\pi i(x-x')k] \\
         &= \int_{-\infty}^\infty dx' Q(x') \delta(x-x') = Q(x')        
     \end{align}
     となり、元に戻る。

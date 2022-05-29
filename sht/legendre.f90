@@ -1,4 +1,5 @@
 !##################################################################
+! calculate associated Legendre function P_m^m from P_{m-1}^{m-1}
 subroutine legendre_m_up(m,y,pm,jx,pn)
   implicit none
 
@@ -13,7 +14,7 @@ subroutine legendre_m_up(m,y,pm,jx,pn)
   ! l = m case
   if (m == 0) then
      do j = 0,jx-1
-        pm(j) = sqrt(0.5d0)
+        pm(j) = 1.d0
      enddo
   else
      do j = 0,jx-1
@@ -75,13 +76,13 @@ subroutine forward(N,qq,y,z,jx,kx,fqq)
   double precision, dimension(0:jx-1), intent(in) :: y  
   double precision, dimension(0:kx-1), intent(in) :: z
   double complex, dimension(0:jx-1,0:kx-1), intent(in)  :: qq
-  double complex, dimension(0:N*jx-1,0:kx-1), intent(out) :: fqq
+  double complex, dimension(0:N*kx/2-1,0:kx-1), intent(out) :: fqq
   
   dy = y(1) - y(0)
   dz = z(1) - z(0)
   
   do k = 0,kx-1
-  do j = 0,jx-1
+  do j = 0,N*kx/2-1
      fqq(j,k) = (0.d0,0.d0)
   enddo
   enddo
@@ -125,9 +126,16 @@ subroutine forward(N,qq,y,z,jx,kx,fqq)
               pm2(j) = pm1(j)
               pm1(j) = pm0(j)
            enddo
-        enddo
+        enddo 
      endif ! mod
   enddo
+
+  do k = 0,kx-1
+  do j = 0,N*kx/2-1
+      fqq(j,k) = 0.5d0*fqq(j,k)
+   enddo
+   enddo
+
      
   return
 end subroutine forward
