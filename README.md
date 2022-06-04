@@ -8,7 +8,7 @@ Spherical Harmonic Expansion routine in python+fortran
 
 If you want to use sht_f2py, please use commant
 ```
-f2py --fcompiler=gfortran -m legendre -c --f90flags='-O3' legendre.f90
+f2py --fcompiler=gfortran -m legendre -c --f90flags='-O3 -fopenmp' -lgomp legendre.f90
 ```
 
 ## functions
