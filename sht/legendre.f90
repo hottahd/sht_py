@@ -1,5 +1,5 @@
 !##################################################################
-! initialize the Legendre funnction
+! initialize the Legendre function
 subroutine legendre_init(y,jx,kx,N,siny,cosy,sinydy,epm,faca,facb)
    implicit none
    
@@ -90,6 +90,7 @@ subroutine legendre_l_up(m,cosy,faca_lm,facb_lm,pm1,pm2,jx,pm0,pn0)
 end subroutine legendre_l_up
 
 !##################################################################
+! forword Spherical Harmonic Expansion
 subroutine forward(N,qqg,yg,jxg,kx,fqqg)
    use omp_lib
    implicit none
@@ -111,11 +112,6 @@ subroutine forward(N,qqg,yg,jxg,kx,fqqg)
   double precision, allocatable, dimension(:) :: y
   double complex, allocatable, dimension(:,:) :: qq
   double complex, allocatable, dimension(:,:,:) :: fqq
-
-!  double precision, dimension(0:jx-1) :: siny,cosy,sinydy
-!  double precision, dimension(0:jx-1) :: pm, pn, pn0, pm0, pm1, pm2 ! legendre function
-!  double precision, dimension(0:jx-1), intent(in) :: y
-!  double complex, dimension(0:jx-1,0:kx-1), intent(in)  :: qq
 
   integer :: OMP_N, OMP_ID
 
@@ -247,6 +243,7 @@ subroutine forward(N,qqg,yg,jxg,kx,fqqg)
 end subroutine forward
 
 !##################################################################
+! backword Spherical Harmonic Expansion
 subroutine backward(N,qq,yg,jxg,kx,fqqg)
    use omp_lib
    implicit none
@@ -267,12 +264,6 @@ subroutine backward(N,qq,yg,jxg,kx,fqqg)
    double precision, allocatable, dimension(:) :: pm, pn, pn0, pm0, pm1, pm2 ! legendre function
    double precision, allocatable, dimension(:) :: y  
    double complex, allocatable, dimension(:,:) :: fqq
-
-   !double precision, dimension(0:jx-1) :: siny,cosy,sinydy
-   !double precision, dimension(0:jx-1) :: pm, pn, pn0, pm0, pm1, pm2 ! legendre function
-   !double precision, dimension(0:jx-1), intent(in) :: y  
-   !double complex, dimension(0:N*kx/2-1,0:kx-1), intent(in)  :: qq
-   !double complex, dimension(0:jx-1,0:kx-1), intent(out) :: fqq
 
    integer :: OMP_N, OMP_ID
 
