@@ -230,7 +230,7 @@ subroutine forward(N,qqg,yg,jxg,kx,fqqg)
  
    do k = 0,kx-1
    do j = 0,N*kx/2-1
-      fqq_OMP(j,k,OMP_ID) = 0.5d0*fqq(j,k)
+      fqq_OMP(j,k,OMP_ID) = fqq(j,k)
     enddo
     enddo
   !$OMP end parallel
