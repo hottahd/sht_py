@@ -6,7 +6,7 @@ Spherical Harmonic Expansion routine in python+fortran
 - sht_py: pure python functions
 - sht_f2py: funcstions using f2py (faster)
 
-If you want to use sht_f2py, please use commant
+If you want to use sht_f2py, please use command
 ```
 f2py --fcompiler=gfortran -m legendre -c --f90flags='-O3 -fopenmp' -lgomp legendre.f90
 ```
