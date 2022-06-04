@@ -18,7 +18,6 @@ def sht(qq,y,z,N=1,direction=1):
         print(fft_end - fft_start,led_end - fft_end)
     else:
         fft_start = time.time()
-        print(jx,len(y))
         fqq = legendre.backward(N,qq,y,kx)
         fft_end = time.time()
         ffqq = ifftn(fqq,axes=[1],norm='forward')

@@ -38,11 +38,11 @@ subroutine legendre_init(y,jx,kx,N,siny,cosy,sinydy,epm,faca,facb)
 end subroutine legendre_init
 !##################################################################
 ! calculate associated Legendre function P_m^m from P_{m-1}^{m-1}
-subroutine legendre_m_up(m,siny,epm_m,pm,jx,kx,N,pn)
+subroutine legendre_m_up(m,siny,epm_m,pm,jx,pn)
   implicit none
 
   integer :: j
-  integer, intent(in) :: m,jx,kx,N
+  integer, intent(in) :: m,jx
   
   double precision, dimension(0:jx-1), intent(in) :: siny
   double precision, intent(in) :: epm_m
@@ -69,11 +69,11 @@ end subroutine legendre_m_up
 
 !##################################################################
 
-subroutine legendre_l_up(l,m,cosy,faca_lm,facb_lm,pm1,pm2,jx,kx,N,pm0,pn0)
+subroutine legendre_l_up(m,cosy,faca_lm,facb_lm,pm1,pm2,jx,pm0,pn0)
   implicit none
 
   integer :: j
-  integer, intent(in) :: l,m,jx,kx,N
+  integer, intent(in) :: m,jx
   
   double precision, dimension(0:jx-1), intent(in) :: cosy,pm1,pm2
   double precision, dimension(0:jx-1), intent(out) :: pm0,pn0
@@ -94,7 +94,7 @@ subroutine forward(N,qqg,yg,jxg,kx,fqqg)
    use omp_lib
    implicit none
 
-  integer :: j,k,m,l,m_N,jx
+  integer :: j,k,m,l,m_n,kx_m_n,jx
   double precision, dimension(1:N*kx/2-1) :: epm
   double precision, dimension(0:N*kx/2-1,0:N*kx/2-1) :: faca,facb
   integer, intent(in) :: N,jxg,kx
@@ -126,7 +126,7 @@ subroutine forward(N,qqg,yg,jxg,kx,fqqg)
   enddo  
 
   !$OMP parallel private(OMP_ID,jx,jx0,jx1,y,siny,cosy,sinydy,qq &
-  !$OMP ,pm,pn,pn0,pm0,pm1,pm2,j,k,l,m,m_N)
+  !$OMP ,pm,pn,pn0,pm0,pm1,pm2,j,k,l,m,m_n,kx_m_n)
   OMP_N  = OMP_GET_NUM_THREADS()
   OMP_ID = OMP_GET_THREAD_NUM()
 
@@ -181,7 +181,7 @@ subroutine forward(N,qqg,yg,jxg,kx,fqqg)
    enddo
  
    do l = m+1,N*kx/2-1
-      call legendre_l_up(l,m,cosy,faca(l,m),facb(l,m),pm1,pm2,jx,kx,N,pm0,pn0)
+      call legendre_l_up(m,cosy,faca(l,m),facb(l,m),pm1,pm2,jx,pm0,pn0)
  
       do j = 0,jx-1
        ! Integration
@@ -195,15 +195,16 @@ subroutine forward(N,qqg,yg,jxg,kx,fqqg)
    enddo
 
    do m = 1,N*kx/2-1
-      call legendre_m_up(m,siny,epm(m),pm,jx,kx,N,pn)
+      call legendre_m_up(m,siny,epm(m),pm,jx,pn)
       
       if (mod(m,n) == 0) then
           m_N = m/N
+          kx_m_n = kx - m_N
          ! Integration
  
           do j = 0,jx-1
             fqq(OMP_ID,m,   m_N) = fqq(OMP_ID,m,   m_N) + qq(j,   m_N)*pm(j)*sinydy(j)
-            fqq(OMP_ID,m,kx-m_N) = fqq(OMP_ID,m,kx-m_N) + qq(j,kx-m_N)*pn(j)*sinydy(j)
+            fqq(OMP_ID,m,kx_m_N) = fqq(OMP_ID,m,kx_m_N) + qq(j,kx_m_N)*pn(j)*sinydy(j)
         enddo
       
          do j = 0,jx-1
@@ -212,12 +213,12 @@ subroutine forward(N,qqg,yg,jxg,kx,fqqg)
          enddo
  
          do l = m+1,N*kx/2-1
-            call legendre_l_up(l,m,cosy,faca(l,m),facb(l,m),pm1,pm2,jx,kx,N,pm0,pn0)
+            call legendre_l_up(m,cosy,faca(l,m),facb(l,m),pm1,pm2,jx,pm0,pn0)
  
             do j = 0,jx-1
                ! Integration
                fqq(OMP_ID,l,   m_N) = fqq(OMP_ID,l,   m_N) + qq(j,   m_N)*pm0(j)*sinydy(j)
-               fqq(OMP_ID,l,kx-m_N) = fqq(OMP_ID,l,kx-m_N) + qq(j,kx-m_N)*pn0(j)*sinydy(j)
+               fqq(OMP_ID,l,kx_m_N) = fqq(OMP_ID,l,kx_m_N) + qq(j,kx_m_N)*pn0(j)*sinydy(j)
             enddo
 
             do j = 0,jx-1        
@@ -250,7 +251,7 @@ subroutine backward(N,qq,yg,jxg,kx,fqqg)
    use omp_lib
    implicit none
 
-   integer :: j,k,m,l,m_N,jx
+   integer :: j,k,m,l,m_N,kx_m_N,jx
    double precision, dimension(1:N*kx/2-1) :: epm
    double precision, dimension(0:N*kx/2-1,0:N*kx/2-1) :: faca,facb
    integer, intent(in) :: N,jxg,kx
@@ -282,7 +283,7 @@ subroutine backward(N,qq,yg,jxg,kx,fqqg)
    enddo
 
    !$OMP parallel private(OMP_ID,jx,jx0,jx1,y,siny,cosy,sinydy &
-   !$OMP ,pm,pn,pn0,pm0,pm1,pm2,j,k,l,m,m_n,fqq)
+   !$OMP ,pm,pn,pn0,pm0,pm1,pm2,j,k,l,m,m_n,kx_m_n,fqq)
    OMP_N  = OMP_GET_NUM_THREADS()
    OMP_ID = OMP_GET_THREAD_NUM()
       
@@ -333,7 +334,7 @@ subroutine backward(N,qq,yg,jxg,kx,fqqg)
   enddo
 
   do l = m+1,N*kx/2-1
-   call legendre_l_up(l,m,cosy,faca(l,m),facb(l,m),pm1,pm2,jx,kx,N,pm0,pn0)
+   call legendre_l_up(m,cosy,faca(l,m),facb(l,m),pm1,pm2,jx,pm0,pn0)
 
    do j = 0,jx-1
       ! Integration
@@ -347,34 +348,30 @@ subroutine backward(N,qq,yg,jxg,kx,fqqg)
   enddo
   
   do m = 1,N*kx/2-1
-     call legendre_m_up(m,siny,epm(m),pm,jx,kx,N,pn)   
+     call legendre_m_up(m,siny,epm(m),pm,jx,pn)
 
      if(mod(m,n) == 0) then
+      m_n = m/N
+      kx_m_n = kx - m_n
         ! Integration
       do j = 0,jx-1
-         fqq(j,m/N) = fqq(j,m/N) + qq(m,m/N)*pm(j)
+         fqq(j,   m_N) = fqq(j,   m_N) + qq(m,   m_N)*pm(j)
+         fqq(j,kx_m_N) = fqq(j,kx_m_N) + qq(m,kx_m_N)*pn(j)
       enddo
       do j = 0,jx-1
-           fqq(j,kx-m/N) = fqq(j,kx-m/N) + qq(m,kx-m/N)*pn(j)
-      enddo
-     
-        do j = 0,jx-1
+      enddo     
+      do j = 0,jx-1
            pm1(j) = pm(j)
            pm2(j) = 0.d0
-        enddo
+      enddo
         
         do l = m+1,N*kx/2-1
-         call legendre_l_up(l,m,cosy,faca(l,m),facb(l,m),pm1,pm2,jx,kx,N,pm0,pn0)
+         call legendre_l_up(m,cosy,faca(l,m),facb(l,m),pm1,pm2,jx,pm0,pn0)
 
          do j = 0,jx-1
             ! Integration
-            fqq(j,   m/N) = fqq(j,   m/N) + qq(l,   m/N)*pm0(j)
-         enddo
-
-         ! negative m
-         do j = 0,jx-1
-            ! Integration
-            fqq(j,kx-m/N) = fqq(j,kx-m/N) + qq(l,kx-m/N)*pn0(j)
+            fqq(j,   m_N) = fqq(j,   m_N) + qq(l,   m_N)*pm0(j)
+            fqq(j,kx_m_N) = fqq(j,kx_m_N) + qq(l,kx_m_N)*pn0(j)
          enddo
                 
          do j = 0,jx-1
