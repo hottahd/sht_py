@@ -111,7 +111,8 @@ subroutine forward(N,qqg,yg,jxg,kx,fqqg)
   double precision, allocatable, dimension(:) :: pm, pn, pn0, pm0, pm1, pm2 ! legendre function
   double precision, allocatable, dimension(:) :: y
   double complex, allocatable, dimension(:,:) :: qq
-  double complex, allocatable, dimension(:,:,:) :: fqq
+  double complex, allocatable, dimension(:,:) :: fqq
+  double complex, allocatable, dimension(:,:,:) :: fqq_OMP
 
   integer :: OMP_N, OMP_ID
 
@@ -122,7 +123,7 @@ subroutine forward(N,qqg,yg,jxg,kx,fqqg)
   enddo  
 
   !$OMP parallel private(OMP_ID,jx,jx0,jx1,y,siny,cosy,sinydy,qq &
-  !$OMP ,pm,pn,pn0,pm0,pm1,pm2,j,k,l,m,m_n,kx_m_n)
+  !$OMP ,pm,pn,pn0,pm0,pm1,pm2,j,k,l,m,m_n,kx_m_n,fqq)
   OMP_N  = OMP_GET_NUM_THREADS()
   OMP_ID = OMP_GET_THREAD_NUM()
 
@@ -133,8 +134,10 @@ subroutine forward(N,qqg,yg,jxg,kx,fqqg)
   endif  
   jx1 = jx0 + jx - 1
 
+  allocate(fqq(0:N*kx/2-1,0:kx-1))
+  
   if (OMP_ID == 0) then
-   allocate(fqq(0:OMP_N-1,0:N*kx/2-1,0:kx-1))
+   allocate(fqq_OMP(0:N*kx/2-1,0:kx-1,0:OMP_N-1))
   endif
 
   allocate(y(0:jx-1))
@@ -157,7 +160,7 @@ subroutine forward(N,qqg,yg,jxg,kx,fqqg)
 
   do k = 0,kx-1
   do j = 0,N*kx/2-1
-      fqq(OMP_ID,j,k) = (0.d0,0.d0)
+      fqq(j,k) = (0.d0,0.d0)
    enddo
    enddo
    
@@ -168,7 +171,7 @@ subroutine forward(N,qqg,yg,jxg,kx,fqqg)
 
    ! integration
    do j = 0,jx-1
-      fqq(OMP_ID,m,m) = fqq(OMP_ID,m,m) + qq(j,   m)*pm(j)*sinydy(j)
+      fqq(m,m) = fqq(m,m) + qq(j,m)*pm(j)*sinydy(j)
    enddo
 
    do j = 0,jx-1
@@ -181,10 +184,10 @@ subroutine forward(N,qqg,yg,jxg,kx,fqqg)
  
       do j = 0,jx-1
        ! Integration
-       fqq(OMP_ID,l,m/N) = fqq(OMP_ID,l,m/N) + qq(j,m/N)*pm0(j)*sinydy(j)
+       fqq(l,m/N) = fqq(l,m/N) + qq(j,m/N)*pm0(j)*sinydy(j)
        enddo
          
-    do j = 0,jx-1        
+    do j = 0,jx-1
        pm2(j) = pm1(j)
        pm1(j) = pm0(j)
     enddo
@@ -199,8 +202,8 @@ subroutine forward(N,qqg,yg,jxg,kx,fqqg)
          ! Integration
  
           do j = 0,jx-1
-            fqq(OMP_ID,m,   m_N) = fqq(OMP_ID,m,   m_N) + qq(j,   m_N)*pm(j)*sinydy(j)
-            fqq(OMP_ID,m,kx_m_N) = fqq(OMP_ID,m,kx_m_N) + qq(j,kx_m_N)*pn(j)*sinydy(j)
+            fqq(m,   m_N) = fqq(m,   m_N) + qq(j,   m_N)*pm(j)*sinydy(j)
+            fqq(m,kx_m_N) = fqq(m,kx_m_N) + qq(j,kx_m_N)*pn(j)*sinydy(j)
         enddo
       
          do j = 0,jx-1
@@ -213,8 +216,8 @@ subroutine forward(N,qqg,yg,jxg,kx,fqqg)
  
             do j = 0,jx-1
                ! Integration
-               fqq(OMP_ID,l,   m_N) = fqq(OMP_ID,l,   m_N) + qq(j,   m_N)*pm0(j)*sinydy(j)
-               fqq(OMP_ID,l,kx_m_N) = fqq(OMP_ID,l,kx_m_N) + qq(j,kx_m_N)*pn0(j)*sinydy(j)
+               fqq(l,   m_N) = fqq(l,   m_N) + qq(j,   m_N)*pm0(j)*sinydy(j)
+               fqq(l,kx_m_N) = fqq(l,kx_m_N) + qq(j,kx_m_N)*pn0(j)*sinydy(j)
             enddo
 
             do j = 0,jx-1        
@@ -227,15 +230,15 @@ subroutine forward(N,qqg,yg,jxg,kx,fqqg)
  
    do k = 0,kx-1
    do j = 0,N*kx/2-1
-      fqq(OMP_ID,j,k) = 0.5d0*fqq(OMP_ID,j,k)
+      fqq_OMP(j,k,OMP_ID) = 0.5d0*fqq(j,k)
     enddo
     enddo
   !$OMP end parallel
-   
+  
    do OMP_ID = 0,OMP_N-1
    do k = 0,kx-1
    do j = 0,N*kx/2-1
-      fqqg(j,k) = fqqg(j,k) + fqq(OMP_ID,j,k)
+      fqqg(j,k) = fqqg(j,k) + 0.5d0*fqq_OMP(j,k,OMP_ID)
    enddo         
    enddo
    enddo
@@ -349,8 +352,7 @@ subroutine backward(N,qq,yg,jxg,kx,fqqg)
          fqq(j,   m_N) = fqq(j,   m_N) + qq(m,   m_N)*pm(j)
          fqq(j,kx_m_N) = fqq(j,kx_m_N) + qq(m,kx_m_N)*pn(j)
       enddo
-      do j = 0,jx-1
-      enddo     
+
       do j = 0,jx-1
            pm1(j) = pm(j)
            pm2(j) = 0.d0
