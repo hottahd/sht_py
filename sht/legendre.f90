@@ -200,8 +200,9 @@ subroutine forward(N,qqg,yg,jxg,kx,fqqg)
           m_N = m/N
           kx_m_n = kx - m_N
          ! Integration
- 
-          do j = 0,jx-1
+
+          !$OMP SIMD
+          do j = 0,jx-1             
             fqq(m,   m_N) = fqq(m,   m_N) + qq(j,   m_N)*pm(j)*sinydy(j)
             fqq(m,kx_m_N) = fqq(m,kx_m_N) + qq(j,kx_m_N)*pn(j)*sinydy(j)
         enddo
@@ -214,6 +215,7 @@ subroutine forward(N,qqg,yg,jxg,kx,fqqg)
          do l = m+1,N*kx/2-1
             call legendre_l_up(m,cosy,faca(l,m),facb(l,m),pm1,pm2,jx,pm0,pn0)
  
+            !$OMP SIMD
             do j = 0,jx-1
                ! Integration
                fqq(l,   m_N) = fqq(l,   m_N) + qq(j,   m_N)*pm0(j)*sinydy(j)

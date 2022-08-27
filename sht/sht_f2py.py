@@ -2,7 +2,8 @@
 # Spherical harmonics transformation
 #
 import numpy as np
-from numpy.fft import fftn, ifftn
+#from numpy.fft import fftn, ifftn
+from scipy.fft import fftn, ifftn
 from . import legendre
 import time
 
