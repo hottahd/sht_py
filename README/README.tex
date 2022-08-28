@@ -74,8 +74,8 @@
     \begin{align}
         \int d\Omega (Y_\ell^m)^* Y_{\ell'}^{m'} &=
         \int_0^{\pi} P_\ell^m(\cos\theta)P_{\ell'}^{m'}(\cos\theta)\sin\theta d\theta 
-        \int_0^{2\pi} \exp\left[i(m'-m)\phi\right] d\phi \\
-        &= 2\pi\int_0^{\pi} P_\ell^m(\cos\theta)P_{\ell'}^{m}(\cos\theta)\sin\theta d\theta \delta_{mm'} \\
+        \int_0^{2\pi} \exp\left[i(m'-m)\phi\right] d\phi \nonumber\\
+        &= 2\pi\int_0^{\pi} P_\ell^m(\cos\theta)P_{\ell'}^{m}(\cos\theta)\sin\theta d\theta \delta_{mm'} \nonumber\\
         & = 4\pi\delta_{\ell\ell'}\delta_{mm'}
     \end{align}
     となる。
@@ -87,7 +87,7 @@
     と表されるので, 球面調和関数の正変換, 逆変換は以下のように表される。
     \begin{align}
         \widehat{Q}_\ell^m &= 
-        \frac{1}{4\pi}\int d\Omega Q(\theta,\phi) Y_\ell^m(\theta,\phi) \\
+        \frac{1}{4\pi}\int d\Omega Q(\theta,\phi) Y_\ell^m(\theta,\phi) \nonumber\\
         Q(\theta,\phi) &=\sum_{\ell=0}^\infty \sum_{m=-\ell}^\ell \widehat{Q}_\ell^m 
         Y_\ell^{m*}(\theta,\phi)
     \end{align}
@@ -98,21 +98,21 @@
         \sum_{\ell=0}^\infty \sum_{m=-\ell}^\ell \widehat{Q}_\ell^m 
         Y_\ell^{m*}(\theta,\phi) =&
         \frac{1}{4\pi}\sum_{\ell=0}^\infty \sum_{m=-\ell}^\ell  \int d\Omega' Q(\theta',\phi') Y_\ell^m(\theta',\phi')
-        Y_\ell^{m*}(\theta,\phi) \\
+        Y_\ell^{m*}(\theta,\phi) \nonumber\\
         =& \frac{1}{4\pi}\int d\Omega' Q(\theta',\phi') \sum_{\ell=0}^\infty
         \sum_{m=-\ell}^\ell  Y_\ell^{m*}(\theta,\phi)
-        Y_\ell^m(\theta',\phi') \\
-        =& \int d\Omega' Q(\theta',\phi')\frac{\delta(\theta-\theta')\delta(\phi-\phi')}{\sin\theta'} \\
-        =& \int_0^\pi d\theta' \int_0^{2\pi} d\phi'Q(\theta',\phi')\delta(\theta-\theta')\delta(\phi-\phi') \\
+        Y_\ell^m(\theta',\phi') \nonumber\\
+        =& \int d\Omega' Q(\theta',\phi')\frac{\delta(\theta-\theta')\delta(\phi-\phi')}{\sin\theta'} \nonumber\\
+        =& \int_0^\pi d\theta' \int_0^{2\pi} d\phi'Q(\theta',\phi')\delta(\theta-\theta')\delta(\phi-\phi') \nonumber\\
         =& Q(\theta,\phi)
     \end{align}
     となるので, 元に戻る。一方
     \begin{align}
         \frac{1}{4\pi}\int d\Omega Q(\theta,\phi)Y_\ell^m(\theta,\phi)
         &= \frac{1}{4\pi}\int d\Omega\sum_{\ell'=0}^\infty \sum_{m'=-\ell'}^{\ell'} \widehat{Q}_{\ell'}^{m'}
-        Y_{\ell'}^{m'*}(\theta,\phi) Y_\ell^m \\
+        Y_{\ell'}^{m'*}(\theta,\phi) Y_\ell^m \nonumber\\
         &= \frac{1}{4\pi}\sum_{\ell'=0}^\infty \sum_{m'=-\ell'}^{\ell'} \widehat{Q}_{\ell'}^{m'}
-        \int d\Omega Y_{\ell'}^{m'*}(\theta,\phi) Y_\ell^m(\theta,\phi) \\
+        \int d\Omega Y_{\ell'}^{m'*}(\theta,\phi) Y_\ell^m(\theta,\phi) \nonumber\\
         &=\sum_{\ell'=0}^\infty \sum_{m'=-\ell'}^{\ell'} \widehat{Q}_{\ell'}^{m'}
         \delta_{\ell\ell'}\delta_{mm'} = Q
     \end{align}
@@ -123,15 +123,15 @@
         \widehat{Q}_\ell^{m*} \widehat{Q}_\ell^m
         &= \frac{1}{(4\pi)^2}\sum_{\ell=0}^\infty\sum_{m=-\ell}^\ell
         \int d\Omega Q(\theta,\phi) Y_\ell^{m*}(\theta,\phi)
-        \int d\Omega' Q(\theta',\phi') Y_\ell^m(\theta',\phi') \\
+        \int d\Omega' Q(\theta',\phi') Y_\ell^m(\theta',\phi') \nonumber\\
         & = \frac{1}{(4\pi)^2}\int d\Omega \int d\Omega' Q(\theta,\phi)Q(\theta',\phi')
-        \sum_{\ell=0}^\infty\sum_{m=-\ell}^\ell Y_\ell^{m*}(\theta,\phi)Y_\ell^m(\theta',\phi') \\
+        \sum_{\ell=0}^\infty\sum_{m=-\ell}^\ell Y_\ell^{m*}(\theta,\phi)Y_\ell^m(\theta',\phi') \nonumber\\
         & = \frac{1}{4\pi}\int d\Omega Q^2(\theta,\phi)
     \end{align}
     物理でよく使う定義では, パワースペクトル$P_m^\ell$は
     \begin{align}
         \sum_{\ell =0}^\infty \sum_{m=-\ell}^\ell \frac{P_\ell^m}{R}
-        &= \frac{1}{4\pi}\int d\Omega Q^2(\theta,\phi) \\
+        &= \frac{1}{4\pi}\int d\Omega Q^2(\theta,\phi) 
     \end{align}
     となるので、 
     \begin{align}
@@ -144,15 +144,30 @@
     $\exp$の直交性のみ確認しておく。$\Phi = N\phi$として
     \begin{align}
         \int_0^{2\pi/N} \exp[i(\tilde{m}-\tilde{m}')\phi]d\phi
-        &= \int_0^{2\pi/N} \exp[i(m-m')N\phi]d\phi \\
+        &= \int_0^{2\pi/N} \exp[i(m-m')N\phi]d\phi \nonumber\\
         &= \frac{1}{N}\int_0^{2\pi} \exp[i(m-m')\Phi] \Phi = 2\pi \delta_{mm'}        
     \end{align}
     離散フーリエ変換と連続フーリエ変換の関係は$1/n=N\Delta \phi/2\pi$なので
     \begin{align}
         \frac{1}{n}\sum_{j=0}^{n-1}Q_j \exp\left(-2\pi i \frac{jm}{n}\right)
-        &= \frac{N}{2\pi}\sum_{j=0}^{n-1}Q_j\exp\left(-iNm\phi \right) \Delta \phi \\
+        &= \frac{N}{2\pi}\sum_{j=0}^{n-1}Q_j\exp\left(-iNm\phi \right) \Delta \phi \nonumber\\
         &\sim \int_0^{2\pi/N} Q(\phi) \exp(-im'\phi)d\phi
-    \end{align}    
+    \end{align}
+
+    \section{実数の球面調和関数展開と計算量削減}
+    まず以下の関係を確認する。
+    \begin{align}
+        \tilde{Q}_{n-m} &= \frac{1}{n}\sum_{j=0}^{n-1} Q_j \exp\left[-2\pi i \frac{j(n-m)}{n}\right] \nonumber\\
+        &=
+        \frac{1}{n}\sum_{j=0}^{n-1} Q_j 
+        \exp\left(-2\pi ij\right)
+        \exp\left[-2\pi i \frac{j(-m)}{n}\right] \nonumber\\
+        &=
+        \frac{1}{n}\sum_{j=0}^{n-1} Q_j 
+        \exp\left[-2\pi i \frac{j(-m)}{n}\right] \nonumber\\
+        & = \tilde{Q}_{-m}
+    \end{align}
+    一方, 実数のフーリエ変換は, 実数部は偶関数, 虚数部は奇関数になることは定義からすぐわかる。このことを利用すると$m=0$から$m=n/2$までを計算すれば良いことがわかる。
     \appendix
     \section{デルタ関数}
     \begin{align}
