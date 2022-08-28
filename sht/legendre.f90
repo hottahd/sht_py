@@ -38,7 +38,7 @@ subroutine legendre_init(y,jx,kx,N,siny,cosy,sinydy,epm,faca,facb)
 end subroutine legendre_init
 !##################################################################
 ! calculate associated Legendre function P_m^m from P_{m-1}^{m-1}
-subroutine legendre_m_up(m,siny,epm_m,pm,jx)!,pn)
+subroutine legendre_m_up(m,siny,epm_m,pm,jx)
   implicit none
 
   integer :: j
@@ -69,7 +69,7 @@ end subroutine legendre_m_up
 
 !##################################################################
 
-subroutine legendre_l_up(m,cosy,faca_lm,facb_lm,pm1,pm2,jx,pm0)!,pn0)
+subroutine legendre_l_up(m,cosy,faca_lm,facb_lm,pm1,pm2,jx,pm0) !,pn0)
   implicit none
 
   integer :: j
@@ -91,7 +91,7 @@ end subroutine legendre_l_up
 
 !##################################################################
 ! forword Spherical Harmonic Expansion
-subroutine forward(N,qqg,yg,jxg,kx,fqqg)
+subroutine forward(N,qqg,yg,jxg,kx,fqqg) bind(C)
    use omp_lib
    implicit none
 
@@ -115,12 +115,21 @@ subroutine forward(N,qqg,yg,jxg,kx,fqqg)
   double complex, allocatable, dimension(:,:,:) :: fqq_OMP
 
   integer :: OMP_N, OMP_ID
+
+  do k = 0,kx/2
+  do j = 0,kx/2
+     if (real(qqg(j,k)) == 10.0) then
+        write(*,*) qqg(j,k),j,k
+     endif
+  enddo
+  enddo
   
   do k = 0,kx/2
   do j = 0,N*kx/2
        fqqg(j,k) = (0.d0,0.d0)
   enddo
-  enddo  
+  enddo
+
 
   !$OMP parallel private(OMP_ID,jx,jx0,jx1,y,siny,cosy,sinydy,qq &
   !$OMP ,pm,pm0,pm1,pm2,j,k,l,m,m_n,fqq)
@@ -245,7 +254,7 @@ end subroutine forward
 
 !##################################################################
 ! backword Spherical Harmonic Expansion
-subroutine backward(N,qq,yg,jxg,kx,fqqg)
+subroutine backward(N,qq,yg,jxg,kx,fqqg) bind(C)
    use omp_lib
    implicit none
 
