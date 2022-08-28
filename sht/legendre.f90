@@ -91,7 +91,7 @@ end subroutine legendre_l_up
 
 !##################################################################
 ! forword Spherical Harmonic Expansion
-subroutine forward(N,qqg,yg,jxg,kx,fqqg) bind(C)
+subroutine forward(N,qqg,yg,jxg,kx,fqq) bind(C)
    use omp_lib
    implicit none
 
@@ -103,7 +103,7 @@ subroutine forward(N,qqg,yg,jxg,kx,fqqg) bind(C)
   ! Global variables
   double precision, dimension(0:jxg-1), intent(in) :: yg
   double complex, dimension(0:jxg-1,0:kx/2), intent(in) :: qqg
-  double complex, dimension(0:N*kx/2,0:kx/2), intent(out) :: fqqg
+  double complex, dimension(0:N*kx/2,0:kx/2), intent(out) :: fqq
 
   ! OpenMP local variables
   integer :: jx0,jx1
@@ -111,28 +111,18 @@ subroutine forward(N,qqg,yg,jxg,kx,fqqg) bind(C)
   double precision, allocatable, dimension(:) :: pm, pm0, pm1, pm2 ! legendre function
   double precision, allocatable, dimension(:) :: y
   double complex, allocatable, dimension(:,:) :: qq
-  double complex, allocatable, dimension(:,:) :: fqq
-  double complex, allocatable, dimension(:,:,:) :: fqq_OMP
 
   integer :: OMP_N, OMP_ID
-
-  do k = 0,kx/2
-  do j = 0,kx/2
-     if (real(qqg(j,k)) == 10.0) then
-        write(*,*) qqg(j,k),j,k
-     endif
-  enddo
-  enddo
   
   do k = 0,kx/2
   do j = 0,N*kx/2
-       fqqg(j,k) = (0.d0,0.d0)
+       fqq(j,k) = (0.d0,0.d0)
   enddo
   enddo
-
 
   !$OMP parallel private(OMP_ID,jx,jx0,jx1,y,siny,cosy,sinydy,qq &
-  !$OMP ,pm,pm0,pm1,pm2,j,k,l,m,m_n,fqq)
+  !$OMP ,pm,pm0,pm1,pm2,j,k,l,m,m_n) reduction(+:fqq)
+  ! fqq
   OMP_N  = OMP_GET_NUM_THREADS()
   OMP_ID = OMP_GET_THREAD_NUM()
 
@@ -142,12 +132,6 @@ subroutine forward(N,qqg,yg,jxg,kx,fqqg) bind(C)
    jx = jxg-jx*(OMP_N-1)
   endif
   jx1 = jx0 + jx - 1
-
-  allocate(fqq(0:N*kx/2,0:kx/2))
-  
-  if (OMP_ID == 0) then
-   allocate(fqq_OMP(0:N*kx/2,0:kx/2,0:OMP_N-1))
-  endif
 
   allocate(y(0:jx-1))
   allocate(siny(0:jx-1))
@@ -173,7 +157,6 @@ subroutine forward(N,qqg,yg,jxg,kx,fqqg) bind(C)
    
    m = 0
    do j = 0,jx-1
-    !pm(j) = 1.d0
     pm(j) = sinydy(j)
    enddo
 
@@ -234,21 +217,8 @@ subroutine forward(N,qqg,yg,jxg,kx,fqqg) bind(C)
          enddo 
       endif ! mod
    enddo
+   !$OMP end parallel
  
-   do k = 0,kx/2
-   do j = 0,N*kx/2
-      fqq_OMP(j,k,OMP_ID) = fqq(j,k)
-    enddo
-    enddo
-  !$OMP end parallel
-  
-   do OMP_ID = 0,OMP_N-1
-   do k = 0,kx/2
-   do j = 0,N*kx/2
-      fqqg(j,k) = fqqg(j,k) + 0.5d0*fqq_OMP(j,k,OMP_ID)
-   enddo         
-   enddo
-   enddo
   return
 end subroutine forward
 
@@ -312,7 +282,7 @@ subroutine backward(N,qq,yg,jxg,kx,fqqg) bind(C)
    call legendre_init(y,jx,kx,N,siny,cosy,sinydy,epm,faca,facb)
 
    m = 0
-   do j = 0,jx-1
+   do j = 0,jx-12
       pm(j) = 1.d0
    enddo
 

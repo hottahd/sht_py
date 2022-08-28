@@ -6,3 +6,4 @@ __pycache__
 *.fls
 *.log
 *.synctex.gz
+*.o
