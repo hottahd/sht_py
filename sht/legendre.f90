@@ -164,12 +164,13 @@ subroutine forward(N,qqg,yg,jxg,kx,fqqg)
    
    m = 0
    do j = 0,jx-1
-    pm(j) = 1.d0
+    !pm(j) = 1.d0
+    pm(j) = sinydy(j)
    enddo
 
    ! integration
    do j = 0,jx-1
-      fqq(m,m) = fqq(m,m) + qq(j,m)*pm(j)*sinydy(j)
+      fqq(m,m) = fqq(m,m) + qq(j,m)*pm(j)!*sinydy(j)
    enddo
 
    do j = 0,jx-1
@@ -182,7 +183,7 @@ subroutine forward(N,qqg,yg,jxg,kx,fqqg)
  
       do j = 0,jx-1
        ! Integration
-       fqq(l,m/N) = fqq(l,m/N) + qq(j,m/N)*pm0(j)*sinydy(j)
+       fqq(l,m/N) = fqq(l,m/N) + qq(j,m/N)*pm0(j)!*sinydy(j)
        enddo
          
     do j = 0,jx-1
@@ -200,7 +201,7 @@ subroutine forward(N,qqg,yg,jxg,kx,fqqg)
 
           !$OMP SIMD
           do j = 0,jx-1             
-            fqq(m,   m_N) = fqq(m,   m_N) + qq(j,   m_N)*pm(j)*sinydy(j)
+            fqq(m,   m_N) = fqq(m,   m_N) + qq(j,   m_N)*pm(j)!*sinydy(j)
         enddo
       
          do j = 0,jx-1
@@ -214,7 +215,7 @@ subroutine forward(N,qqg,yg,jxg,kx,fqqg)
             !$OMP SIMD
             do j = 0,jx-1
                ! Integration
-               fqq(l,   m_N) = fqq(l,   m_N) + qq(j,   m_N)*pm0(j)*sinydy(j)
+               fqq(l,   m_N) = fqq(l,   m_N) + qq(j,   m_N)*pm0(j)!*sinydy(j)
             enddo
 
             do j = 0,jx-1        
