@@ -92,7 +92,8 @@ end subroutine legendre_l_up
 !##################################################################
 ! forword Spherical Harmonic Expansion
 subroutine forward(N,qqg,yg,jxg,kx,fqq) bind(C)
-   use omp_lib
+  use omp_lib
+  use iso_fortran_env
    implicit none
 
   integer :: j,k,m,l,m_n,jx
@@ -104,6 +105,9 @@ subroutine forward(N,qqg,yg,jxg,kx,fqq) bind(C)
   double precision, dimension(0:jxg-1), intent(in) :: yg
   double complex, dimension(0:jxg-1,0:kx/2), intent(in) :: qqg
   double complex, dimension(0:N*kx/2,0:kx/2), intent(out) :: fqq
+  !double complex, dimension(0:,0:), intent(in) :: qqg
+  !double complex, pointer, contiguous, dimension(:,:), intent(in) :: qqg
+  !double complex, dimension(:,:), allocatable, intent(out) :: fqq
 
   ! OpenMP local variables
   integer :: jx0,jx1

@@ -1,6 +1,7 @@
+update
 .DS_Store
 __pycache__
-*.so
+*.so*
 *.aux
 *.fdb_latexmk
 *.fls
