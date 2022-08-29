@@ -2,9 +2,28 @@ from scipy.fft import rfftn, irfftn
 import ctypes
 import numpy as np
 import os
-#import legendre
 
 def sht(qq,y,z,N=1,direction=1):
+    """
+    Spherical Harmonic transform
+
+    Parameters
+    ----------
+    qq: float [jx,kx] for forward [N*jx,kx] for backward
+        a variable for transform
+    y: float [jx]
+        colatitude 0<y<pi [radian]
+    z: float [kx]
+        longitude 0<z<2pi/N [radian]
+    N: int
+       ratio of the longitude extent to 2pi
+
+    Return
+    ----------
+    ffqq: complex [N*jx,kx] for forward and float [jx,kx] for backward
+        a transformed variable
+    """
+    
     jx, kx = y.shape[0], z.shape[0]
     libdir = os.path.dirname(os.path.realpath(__file__))
     legendre = np.ctypeslib.load_library('legendre.so',libdir)

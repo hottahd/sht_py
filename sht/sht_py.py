@@ -1,4 +1,4 @@
-#
+
 # Spherical harmonics transformation
 #
 import numpy as np
