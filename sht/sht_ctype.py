@@ -3,7 +3,7 @@ import ctypes
 import numpy as np
 import os
 
-def sht(qq,y,z,N=1,direction=1):
+def sht(qq,y,z,N=1,direction=1,OMP_N=1):
     """
     Spherical Harmonic transform
 
@@ -17,12 +17,17 @@ def sht(qq,y,z,N=1,direction=1):
         longitude 0<z<2pi/N [radian]
     N: int
        ratio of the longitude extent to 2pi
+    OMP_N: int
+       number of OpenMP threads
 
     Return
     ----------
     ffqq: complex [N*jx,kx] for forward and float [jx,kx] for backward
         a transformed variable
     """
+
+    os.environ['OMP_STACKSIZE'] = str(512000)
+    os.environ['OMP_NUM_THREADS'] = str(OMP_N)
     
     jx, kx = y.shape[0], z.shape[0]
     libdir = os.path.dirname(os.path.realpath(__file__))
