@@ -27,7 +27,7 @@ def sht(qq,y,z,N=1,direction=1,OMP_N=1):
     """
 
     os.environ['OMP_STACKSIZE'] = str(512000)
-    os.environ['OMP_NUM_THREADS'] = str(OMP_N)
+    #os.environ['OMP_NUM_THREADS'] = str(OMP_N)
     
     jx, kx = y.shape[0], z.shape[0]
     libdir = os.path.dirname(os.path.realpath(__file__))
@@ -67,5 +67,5 @@ def sht(qq,y,z,N=1,direction=1,OMP_N=1):
         legendre.backward(N_C,qq,y,jx_C,kx_C,fqq)
 
         ffqq = irfftn(fqq,axes=[0],norm='forward')
-        
+                
     return ffqq.T

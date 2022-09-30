@@ -47,7 +47,6 @@ subroutine legendre_m_up(m,siny,epm_m,pm,jx)
   double precision, dimension(0:jx-1), intent(in) :: siny
   double precision, intent(in) :: epm_m
   double precision, dimension(0:jx-1), intent(inout) :: pm
-  !double precision, dimension(0:jx-1), intent(out) :: pn
   
   ! l = m case
   do j = 0,jx-1
@@ -58,11 +57,6 @@ subroutine legendre_m_up(m,siny,epm_m,pm,jx)
          pm(j) = 0.d0
       endif
    enddo
-
-  ! negative m
-  !do j = 0,jx-1
-  !   pn(j) = (-1.d0)**m*pm(j)
-  !enddo
 
   return
 end subroutine legendre_m_up
@@ -76,16 +70,12 @@ subroutine legendre_l_up(m,cosy,faca_lm,facb_lm,pm1,pm2,jx,pm0) !,pn0)
   integer, intent(in) :: m,jx
   
   double precision, dimension(0:jx-1), intent(in) :: cosy,pm1,pm2
-  double precision, dimension(0:jx-1), intent(out) :: pm0!,pn0
+  double precision, dimension(0:jx-1), intent(out) :: pm0
   double precision, intent(in) :: faca_lm,facb_lm
   do j = 0,jx-1
      pm0(j) = faca_lm*cosy(j)*pm1(j) - facb_lm*pm2(j)
   enddo
 
-  !do j = 0,jx-1
-  !    pn0(j) = (-1.0)**m*pm0(j)
-  !enddo
-  
   return
 end subroutine legendre_l_up
 
@@ -105,9 +95,6 @@ subroutine forward(N,qqg,yg,jxg,kx,fqq) bind(C)
   double precision, dimension(0:jxg-1), intent(in) :: yg
   double complex, dimension(0:jxg-1,0:kx/2), intent(in) :: qqg
   double complex, dimension(0:N*kx/2,0:kx/2), intent(out) :: fqq
-  !double complex, dimension(0:,0:), intent(in) :: qqg
-  !double complex, pointer, contiguous, dimension(:,:), intent(in) :: qqg
-  !double complex, dimension(:,:), allocatable, intent(out) :: fqq
 
   ! OpenMP local variables
   integer :: jx0,jx1
@@ -124,10 +111,10 @@ subroutine forward(N,qqg,yg,jxg,kx,fqq) bind(C)
   enddo
   enddo
 
-  !$OMP parallel private(OMP_ID,jx,jx0,jx1,y,siny,cosy,sinydy,qq &
+  !$OMP parallel private(OMP_N,OMP_ID,jx,jx0,jx1,y,siny,cosy,sinydy,qq &
   !$OMP ,pm,pm0,pm1,pm2,j,k,l,m,m_n) reduction(+:fqq)
   ! fqq
-  OMP_N  = OMP_GET_NUM_THREADS()
+  OMP_N  = OMP_GET_NUM_THREADS()  
   OMP_ID = OMP_GET_THREAD_NUM()
 
   jx = jxg/OMP_N
@@ -161,7 +148,7 @@ subroutine forward(N,qqg,yg,jxg,kx,fqq) bind(C)
    
    m = 0
    do j = 0,jx-1
-    pm(j) = sinydy(j)
+    pm(j) = sinydy(j)/sqrt(2.d0)
    enddo
 
    ! integration
@@ -195,7 +182,6 @@ subroutine forward(N,qqg,yg,jxg,kx,fqq) bind(C)
           m_N = m/N
          ! Integration
 
-          !$OMP SIMD
           do j = 0,jx-1             
             fqq(m,   m_N) = fqq(m,   m_N) + qq(j,   m_N)*pm(j)!*sinydy(j)
         enddo
@@ -208,7 +194,6 @@ subroutine forward(N,qqg,yg,jxg,kx,fqq) bind(C)
          do l = m+1,N*kx/2
             call legendre_l_up(m,cosy,faca(l,m),facb(l,m),pm1,pm2,jx,pm0)
  
-            !$OMP SIMD
             do j = 0,jx-1
                ! Integration
                fqq(l,   m_N) = fqq(l,   m_N) + qq(j,   m_N)*pm0(j)!*sinydy(j)
@@ -257,7 +242,7 @@ subroutine backward(N,qq,yg,jxg,kx,fqqg) bind(C)
    enddo
    enddo
 
-   !$OMP parallel private(OMP_ID,jx,jx0,jx1,y,siny,cosy,sinydy &
+   !$OMP parallel private(OMP_N,OMP_ID,jx,jx0,jx1,y,siny,cosy,sinydy &
    !$OMP ,pm,pm0,pm1,pm2,j,k,l,m,m_n,fqq)
    OMP_N  = OMP_GET_NUM_THREADS()
    OMP_ID = OMP_GET_THREAD_NUM()
@@ -286,8 +271,8 @@ subroutine backward(N,qq,yg,jxg,kx,fqqg) bind(C)
    call legendre_init(y,jx,kx,N,siny,cosy,sinydy,epm,faca,facb)
 
    m = 0
-   do j = 0,jx-12
-      pm(j) = 1.d0
+   do j = 0,jx-1
+      pm(j) = 1.d0/sqrt(2.d0)
    enddo
 
    do k = 0,kx/2
@@ -351,8 +336,8 @@ subroutine backward(N,qq,yg,jxg,kx,fqqg) bind(C)
      endif
   enddo
 
-  do k = 0,kx/2
   do j = 0,jx-1
+  do k = 0,kx/2
       fqqg(jx0+j,k) = fqq(j,k)
   enddo
   enddo
