@@ -1,11 +1,7 @@
-
 # Spherical harmonics transformation
 #
 import numpy as np
 from scipy.fft import fftn, ifftn
-
-##################################################################
-##################################################################
 
 def legendre_init(y,kx,N):
     """
