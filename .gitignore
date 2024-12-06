@@ -9,4 +9,4 @@ __pycache__
 *.synctex.gz
 *.o
 *.npz
-sht_py/_version.py
+sht/_version.py
