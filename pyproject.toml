@@ -1,7 +1,13 @@
+[project]
+name = "sht"
+description = "Spherical Harmonic Expansion routines"
+dependencies = [
+    "numpy>=1.0.0",
+    "scipy>=1.0.0"
+]
+
 [build-system]
 requires = [
-    "numpy>=1.0.0",
-    "scipy>=1.0.0",
     "setuptools>=42",
     "setuptools_scm[toml]>=6.0"
     ]
