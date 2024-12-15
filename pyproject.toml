@@ -1,6 +1,5 @@
 [project]
 name = "sht"
-version = '0.0.0'
 description = "Spherical Harmonic Expansion routines"
 dependencies = [
     "numpy>=1.0.0",
