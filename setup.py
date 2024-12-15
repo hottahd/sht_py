@@ -27,6 +27,10 @@ setup(
     packages=find_packages(),
     cmdclass={"build_py": CustomBuildPy},  # build_pyをカスタムコマンドに置き換え
     zip_safe=False,
+    install_requires=[  # ランタイム依存関係
+        "numpy>=1.0.0",
+        "scipy>=1.0.0"
+    ],   
 )
 
 # setup(

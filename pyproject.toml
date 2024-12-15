@@ -9,11 +9,3 @@ build-backend = "setuptools.build_meta"
 version_scheme = "guess-next-dev"
 local_scheme = "dirty-tag"
 write_to = 'sht/_version.py'
-
-[project]
-name = "sht"
-description = "Spherical Harmonic Expansion routines"
-dependencies = [
-    "numpy>=1.0.0",
-    "scipy>=1.0.0"
-]
