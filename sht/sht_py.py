@@ -130,7 +130,7 @@ def legendre_l_up(l,m,cosy,faca_lm,facb_lm,pm1,pm2):
 ##################################################################
 ##################################################################
 
-def sht(qq,y,z,N=1,direction=1):
+def sht_py(qq,y,z,N=1,direction=1):
     """
     Spherical Harmonic transform
 

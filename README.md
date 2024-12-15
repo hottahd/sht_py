@@ -2,8 +2,8 @@
 Spherical Harmonic Expansion routine in python+fortran
 
 ## Files
-- sht/sht_py: pure python functions
-- sht/sht_ctype: functions using ctype (faster and parallerized)
+- sht.sht: functions using ctype (faster and parallerized)
+- sht.sht_py: pure python functions
 
 ## Install
 ### Requirement
@@ -16,12 +16,8 @@ sudo apt update
 sudo apt-get install -y build-essential gfortran
 ```
 
-You just need ```numpy``` and ```scipy```.
-
-### sht_ctype
-please just make at sht/ directory
-```
-make
+```shell
+pip install .
 ```
 
 ## OpenMP Usage
@@ -41,4 +37,4 @@ export OMP_NUM_THREADS=4
 For MacOS X, it does not work and we cannot use large size of quantities for the transformation.
 
 ## functions
-please see ```help(sht_py)``` and ```help(sht_ctype)```
+please see ```help(sht.sht_py)``` and ```help(sht.sht)```
