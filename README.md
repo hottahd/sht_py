@@ -1,13 +1,21 @@
 # sht_py
 Spherical Harmonic Expansion routine in python+fortran
 
-
-## modules
-- sht_py: pure python functions
-- sht_ctype: functions using ctype (faster and parallerized)
+## Files
+- sht/sht_py: pure python functions
+- sht/sht_ctype: functions using ctype (faster and parallerized)
 
 ## Install
-### sht_py
+### Requirement
+You need `make` and`gfortran`.
+
+Debian-based (Debian, Ubuntu, Mint, etc…)
+
+```shell
+sudo apt update
+sudo apt-get install -y build-essential gfortran
+```
+
 You just need ```numpy``` and ```scipy```.
 
 ### sht_ctype
@@ -15,6 +23,9 @@ please just make at sht/ directory
 ```
 make
 ```
+
+## OpenMP Usage
+
 You might need to set enviroment variable and increase stack size
 ```
 export OMP_STACKSIZE=512000

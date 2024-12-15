@@ -10,3 +10,5 @@ __pycache__
 *.o
 *.npz
 sht/_version.py
+sht.egg-info
+build

@@ -145,8 +145,8 @@ def sht(qq,y,z,N=1,direction=1):
     N: int
        ratio of the longitude extent to 2pi
 
-    Return
-    ----------
+    Returns
+    -------
     ffqq: complex [N*jx,kx] for forward and [jx,kx] for backward
         a transformed variable
     """

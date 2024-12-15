@@ -1,2 +1,2 @@
 from . import sht_py
-from . import sht_ctype
+from .sht_ctype import sht
