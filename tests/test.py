@@ -1,4 +1,5 @@
 import numpy as np
+import scipy.special as sp
 import sht
 
 
@@ -20,7 +21,7 @@ for j in range(1, jph):
 
 TH, PH = np.meshgrid(th, ph, indexing='ij')
 
-qq = np.sin(10*TH)*np.cos(5*PH) + np.cos(5*TH)*np.sin(3*PH)
+qq = sp.sph_harm(40, 200, PH, TH).real
 
 # qq = np.zeros((ith, jph))
 # for i in range(ith//2):
@@ -32,7 +33,7 @@ qq = np.sin(10*TH)*np.cos(5*PH) + np.cos(5*TH)*np.sin(3*PH)
 #         amp4 = np.random.uniform(-1,1)/ith/jph
 #         qq += (amp1*np.sin(i*TH) + amp2*np.cos(i*TH)) \
 #             *(amp3*np.sin(j*PH) + amp4*np.cos(j*PH))
-fqq = sht.sht_py(qq, th, ph)
-qqb = sht.sht_py(fqq, th, ph,direction=-1)
+fqq = sht.sht(qq, th, ph)
+qqb = sht.sht(fqq, th, ph, direction=-1)
 
-print(((qq - qqb)).mean())
+print(np.sqrt(((qq - qqb)**2).mean()))
