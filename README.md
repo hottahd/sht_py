@@ -12,6 +12,8 @@ sudo apt-get install -y build-essential gfortran
 ```
 
 ```shell
+git clone https://github.com/hottahd/sht_py.git
+cd sht_py
 pip install .
 ```
 
