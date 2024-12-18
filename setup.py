@@ -26,6 +26,7 @@ setup(
     setup_requires=["setuptools_scm"],
     packages=find_packages(),
     cmdclass={"build_py": CustomBuildPy},  # build_pyをカスタムコマンドに置き換え
+    include_package_data=True,    
     zip_safe=False,
     install_requires=[  # ランタイム依存関係
         "numpy>=1.0.0",
@@ -33,7 +34,3 @@ setup(
     ],   
 )
 
-# setup(
-#     name='sht',
-#     packages=['sht'],
-# )
