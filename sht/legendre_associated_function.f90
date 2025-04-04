@@ -1,6 +1,6 @@
 !##################################################################
 ! initialize the Legendre function
-subroutine legendre_init(y,jx,kx,N,siny,cosy,sinydy,epm,faca,facb)
+subroutine init(y,jx,kx,N,siny,cosy,sinydy,epm,faca,facb)
    implicit none
    
    integer :: l,m,j
@@ -35,10 +35,10 @@ subroutine legendre_init(y,jx,kx,N,siny,cosy,sinydy,epm,faca,facb)
    enddo
 
    return
-end subroutine legendre_init
+end subroutine init
 !##################################################################
 ! calculate associated Legendre function P_m^m from P_{m-1}^{m-1}
-subroutine legendre_m_up(m,siny,epm_m,pm,jx)
+subroutine m_up(m,siny,epm_m,pm,jx)
   implicit none
 
   integer :: j
@@ -59,11 +59,11 @@ subroutine legendre_m_up(m,siny,epm_m,pm,jx)
    enddo
 
   return
-end subroutine legendre_m_up
+end subroutine m_up
 
 !##################################################################
 
-subroutine legendre_l_up(m,cosy,faca_lm,facb_lm,pm1,pm2,jx,pm0) !,pn0)
+subroutine l_up(m,cosy,faca_lm,facb_lm,pm1,pm2,jx,pm0) !,pn0)
   implicit none
 
   integer :: j
@@ -77,10 +77,10 @@ subroutine legendre_l_up(m,cosy,faca_lm,facb_lm,pm1,pm2,jx,pm0) !,pn0)
   enddo
 
   return
-end subroutine legendre_l_up
+end subroutine l_up
 
 !##################################################################
-! forword Spherical Harmonic Expansion
+! forword Legendre associated function transform
 subroutine forward(N,qqg,yg,jxg,kx,fqq) bind(C)
   use omp_lib
   use iso_fortran_env
@@ -138,7 +138,7 @@ subroutine forward(N,qqg,yg,jxg,kx,fqq) bind(C)
   y = yg(jx0:jx1)
   qq = qqg(jx0:jx1,:)
 
-  call legendre_init(y,jx,kx,N,siny,cosy,sinydy,epm,faca,facb)
+  call init(y,jx,kx,N,siny,cosy,sinydy,epm,faca,facb)
 
   do k = 0,kx/2
   do j = 0,N*kx/2
@@ -162,7 +162,7 @@ subroutine forward(N,qqg,yg,jxg,kx,fqq) bind(C)
    enddo
  
    do l = m+1,N*kx/2
-      call legendre_l_up(m,cosy,faca(l,m),facb(l,m),pm1,pm2,jx,pm0)
+      call l_up(m,cosy,faca(l,m),facb(l,m),pm1,pm2,jx,pm0)
  
       do j = 0,jx-1
        ! Integration
@@ -176,7 +176,7 @@ subroutine forward(N,qqg,yg,jxg,kx,fqq) bind(C)
    enddo
 
    do m = 1,N*kx/2
-      call legendre_m_up(m,siny,epm(m),pm,jx)
+      call m_up(m,siny,epm(m),pm,jx)
       
       if (mod(m,n) == 0) then
           m_N = m/N
@@ -192,7 +192,7 @@ subroutine forward(N,qqg,yg,jxg,kx,fqq) bind(C)
          enddo
  
          do l = m+1,N*kx/2
-            call legendre_l_up(m,cosy,faca(l,m),facb(l,m),pm1,pm2,jx,pm0)
+            call l_up(m,cosy,faca(l,m),facb(l,m),pm1,pm2,jx,pm0)
  
             do j = 0,jx-1
                ! Integration
@@ -212,7 +212,7 @@ subroutine forward(N,qqg,yg,jxg,kx,fqq) bind(C)
 end subroutine forward
 
 !##################################################################
-! backword Spherical Harmonic Expansion
+! backward Legendre associated function transform
 subroutine backward(N,qq,yg,jxg,kx,fqqg) bind(C)
    use omp_lib
    implicit none
@@ -268,7 +268,7 @@ subroutine backward(N,qq,yg,jxg,kx,fqqg) bind(C)
  
    y = yg(jx0:jx1)
  
-   call legendre_init(y,jx,kx,N,siny,cosy,sinydy,epm,faca,facb)
+   call init(y,jx,kx,N,siny,cosy,sinydy,epm,faca,facb)
 
    m = 0
    do j = 0,jx-1
@@ -292,7 +292,7 @@ subroutine backward(N,qq,yg,jxg,kx,fqqg) bind(C)
   enddo
 
   do l = m+1,N*kx/2
-   call legendre_l_up(m,cosy,faca(l,m),facb(l,m),pm1,pm2,jx,pm0)
+   call l_up(m,cosy,faca(l,m),facb(l,m),pm1,pm2,jx,pm0)
 
    do j = 0,jx-1
       ! Integration
@@ -306,7 +306,7 @@ subroutine backward(N,qq,yg,jxg,kx,fqqg) bind(C)
   enddo
   
   do m = 1,N*kx/2
-     call legendre_m_up(m,siny,epm(m),pm,jx)
+     call m_up(m,siny,epm(m),pm,jx)
 
      if(mod(m,n) == 0) then
       m_n = m/N
@@ -321,7 +321,7 @@ subroutine backward(N,qq,yg,jxg,kx,fqqg) bind(C)
       enddo
         
         do l = m+1,N*kx/2
-         call legendre_l_up(m,cosy,faca(l,m),facb(l,m),pm1,pm2,jx,pm0)
+         call l_up(m,cosy,faca(l,m),facb(l,m),pm1,pm2,jx,pm0)
 
          do j = 0,jx-1
             ! Integration
