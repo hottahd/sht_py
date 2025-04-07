@@ -53,7 +53,7 @@ subroutine m_up(m,siny,epm_m,pm,jx)
       pm(j) = epm_m*siny(j)*pm(j)
   enddo
   do j = 0,jx-1
-      if (abs(pm(j)) < 1.d-300) then
+      if (abs(pm(j)) < 1.d-100) then
          pm(j) = 0.d0
       endif
    enddo
