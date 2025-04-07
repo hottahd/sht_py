@@ -47,7 +47,7 @@ def sht(qq,y,z,N=1,direction=1):
         ]
         lib.forward.restype = ctypes.c_void_p
            
-        fqq = rfftn(qq,axes=[1],norm='forward').reshape(kx//2+1,jx,order='F')
+        fqq = rfftn(qq,axes=[1],norm='forward').astype(np.complex128).reshape(kx//2+1,jx,order='F')
         ffqq = np.zeros((kx//2+1,N*kx//2+1),dtype=np.complex128)
             
         lib.forward(N_C,fqq,y,jx_C,kx_C,ffqq)
