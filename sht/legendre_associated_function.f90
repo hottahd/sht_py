@@ -1,17 +1,14 @@
 !##################################################################
-! initialize the Legendre function
-subroutine init(y,jx,kx,N,siny,cosy,sinydy,epm,faca,facb)
+! initialize the Legendre function factors
+subroutine init_factor(kx,N,epm,faca,facb)
    implicit none
    
    integer :: l,m,j
-   integer, intent(in) :: jx,kx,N
-   double precision :: fm,fl,dy
-   double precision, dimension(0:jx-1), intent(in) :: y
-   double precision, dimension(0:jx-1), intent(out) :: siny,cosy,sinydy
+   integer, intent(in) :: kx,N
+   double precision :: fm,fl
    double precision, dimension(1:N*kx/2), intent(out) :: epm
    double precision, dimension(0:N*kx/2,0:N*kx/2), intent(out) :: faca,facb
 
-   dy = y(1) - y(0)
    faca = 0.d0
    facb = 0.d0
    do m = 1,N*kx/2
@@ -28,6 +25,21 @@ subroutine init(y,jx,kx,N,siny,cosy,sinydy,epm,faca,facb)
       enddo
    enddo
 
+   return
+end subroutine init_factor
+!##################################################################
+! initialize the Legendre function
+subroutine init_geometry(y,jx,cosy,siny,sinydy)
+   implicit none
+   
+   integer :: j
+   integer, intent(in) :: jx
+   double precision :: dy
+   double precision, dimension(0:jx-1), intent(in) :: y
+   double precision, dimension(0:jx-1), intent(out) :: cosy,siny,sinydy
+
+   dy = y(1) - y(0)
+
    do j = 0,jx-1
       cosy(j) = cos(y(j))
       siny(j) = sin(y(j))
@@ -35,7 +47,7 @@ subroutine init(y,jx,kx,N,siny,cosy,sinydy,epm,faca,facb)
    enddo
 
    return
-end subroutine init
+end subroutine init_geometry
 !##################################################################
 ! calculate associated Legendre function P_m^m from P_{m-1}^{m-1}
 subroutine m_up(m,siny,epm_m,pm,jx)
@@ -95,6 +107,7 @@ subroutine forward(N,qqg,yg,jxg,kx,fqq) bind(C)
   double precision, dimension(0:jxg-1), intent(in) :: yg
   double complex, dimension(0:jxg-1,0:kx/2), intent(in) :: qqg
   double complex, dimension(0:N*kx/2,0:kx/2), intent(out) :: fqq
+  double complex, allocatable :: fqq_local(:,:)
 
   ! OpenMP local variables
   integer :: jx0,jx1
@@ -111,10 +124,15 @@ subroutine forward(N,qqg,yg,jxg,kx,fqq) bind(C)
   enddo
   enddo
 
+  call init_factor(kx,N,epm,faca,facb)
+
   !$OMP parallel private(OMP_N,OMP_ID,jx,jx0,jx1,y,siny,cosy,sinydy,qq &
-  !$OMP ,pm,pm0,pm1,pm2,j,k,l,m,m_n) reduction(+:fqq)
-  ! fqq
-  OMP_N  = OMP_GET_NUM_THREADS()  
+  !$OMP ,pm,pm0,pm1,pm2,j,k,l,m,m_n,fqq_local) shared(qqg,fqq)
+  
+  allocate(fqq_local(0:N*kx/2,0:kx/2))
+  fqq_local = (0.d0,0.d0)
+
+  OMP_N  = OMP_GET_NUM_THREADS()
   OMP_ID = OMP_GET_THREAD_NUM()
 
   jx = jxg/OMP_N
@@ -138,13 +156,7 @@ subroutine forward(N,qqg,yg,jxg,kx,fqq) bind(C)
   y = yg(jx0:jx1)
   qq = qqg(jx0:jx1,:)
 
-  call init(y,jx,kx,N,siny,cosy,sinydy,epm,faca,facb)
-
-  do k = 0,kx/2
-  do j = 0,N*kx/2
-      fqq(j,k) = (0.d0,0.d0)
-   enddo
-   enddo
+  call init_geometry(y,jx,siny,cosy,sinydy)
    
    m = 0
    do j = 0,jx-1
@@ -153,7 +165,7 @@ subroutine forward(N,qqg,yg,jxg,kx,fqq) bind(C)
 
    ! integration
    do j = 0,jx-1
-      fqq(m,m) = fqq(m,m) + qq(j,m)*pm(j)!*sinydy(j)
+      fqq_local(m,m) = fqq_local(m,m) + qq(j,m)*pm(j)
    enddo
 
    do j = 0,jx-1
@@ -166,7 +178,7 @@ subroutine forward(N,qqg,yg,jxg,kx,fqq) bind(C)
  
       do j = 0,jx-1
        ! Integration
-       fqq(l,m/N) = fqq(l,m/N) + qq(j,m/N)*pm0(j)!*sinydy(j)
+       fqq_local(l,m/N) = fqq_local(l,m/N) + qq(j,m/N)*pm0(j)
        enddo
          
     do j = 0,jx-1
@@ -183,7 +195,7 @@ subroutine forward(N,qqg,yg,jxg,kx,fqq) bind(C)
          ! Integration
 
           do j = 0,jx-1             
-            fqq(m,   m_N) = fqq(m,   m_N) + qq(j,   m_N)*pm(j)!*sinydy(j)
+            fqq_local(m,   m_N) = fqq_local(m,   m_N) + qq(j,   m_N)*pm(j)
         enddo
       
          do j = 0,jx-1
@@ -196,7 +208,7 @@ subroutine forward(N,qqg,yg,jxg,kx,fqq) bind(C)
  
             do j = 0,jx-1
                ! Integration
-               fqq(l,   m_N) = fqq(l,   m_N) + qq(j,   m_N)*pm0(j)!*sinydy(j)
+               fqq_local(l,   m_N) = fqq_local(l,   m_N) + qq(j,   m_N)*pm0(j)
             enddo
 
             do j = 0,jx-1        
@@ -206,6 +218,14 @@ subroutine forward(N,qqg,yg,jxg,kx,fqq) bind(C)
          enddo 
       endif ! mod
    enddo
+
+   !$omp critical
+   do k = 0,kx/2
+   do j = 0,N*kx/2
+       fqq(j,k) = fqq(j,k) + fqq_local(j,k)
+   enddo
+   enddo   
+   !$omp end critical
    !$OMP end parallel
  
   return
@@ -242,11 +262,13 @@ subroutine backward(N,qq,yg,jxg,kx,fqqg) bind(C)
    enddo
    enddo
 
+  call init_factor(kx,N,epm,faca,facb)
+
    !$OMP parallel private(OMP_N,OMP_ID,jx,jx0,jx1,y,siny,cosy,sinydy &
    !$OMP ,pm,pm0,pm1,pm2,j,k,l,m,m_n,fqq)
-   OMP_N  = OMP_GET_NUM_THREADS()
-   OMP_ID = OMP_GET_THREAD_NUM()
-      
+  OMP_N  = OMP_GET_NUM_THREADS()
+  OMP_ID = OMP_GET_THREAD_NUM()
+
    jx = jxg/OMP_N
    jx0 = jx*OMP_ID
    if (OMP_ID == OMP_N-1) then
@@ -268,7 +290,7 @@ subroutine backward(N,qq,yg,jxg,kx,fqqg) bind(C)
  
    y = yg(jx0:jx1)
  
-   call init(y,jx,kx,N,siny,cosy,sinydy,epm,faca,facb)
+   call init_geometry(y,jx,siny,cosy,sinydy)
 
    m = 0
    do j = 0,jx-1
