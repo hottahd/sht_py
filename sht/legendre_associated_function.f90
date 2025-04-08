@@ -118,11 +118,7 @@ subroutine forward(N,qqg,yg,jxg,kx,fqq) bind(C)
 
   integer :: OMP_N, OMP_ID
   
-  do k = 0,kx/2
-  do j = 0,N*kx/2
-       fqq(j,k) = (0.d0,0.d0)
-  enddo
-  enddo
+  fqq = (0.d0,0.d0)
 
   call init_factor(kx,N,epm,faca,facb)
 
@@ -156,7 +152,7 @@ subroutine forward(N,qqg,yg,jxg,kx,fqq) bind(C)
   y = yg(jx0:jx1)
   qq = qqg(jx0:jx1,:)
 
-  call init_geometry(y,jx,siny,cosy,sinydy)
+  call init_geometry(y,jx,cosy,siny,sinydy)
    
    m = 0
    do j = 0,jx-1
@@ -179,7 +175,7 @@ subroutine forward(N,qqg,yg,jxg,kx,fqq) bind(C)
       do j = 0,jx-1
        ! Integration
        fqq_local(l,m/N) = fqq_local(l,m/N) + qq(j,m/N)*pm0(j)
-       enddo
+      enddo
          
     do j = 0,jx-1
        pm2(j) = pm1(j)
@@ -219,14 +215,14 @@ subroutine forward(N,qqg,yg,jxg,kx,fqq) bind(C)
       endif ! mod
    enddo
 
-   !$omp critical
+  !$omp critical
    do k = 0,kx/2
    do j = 0,N*kx/2
        fqq(j,k) = fqq(j,k) + fqq_local(j,k)
    enddo
    enddo   
-   !$omp end critical
-   !$OMP end parallel
+  !$omp end critical
+  !$OMP end parallel
  
   return
 end subroutine forward
@@ -264,8 +260,8 @@ subroutine backward(N,qq,yg,jxg,kx,fqqg) bind(C)
 
   call init_factor(kx,N,epm,faca,facb)
 
-   !$OMP parallel private(OMP_N,OMP_ID,jx,jx0,jx1,y,siny,cosy,sinydy &
-   !$OMP ,pm,pm0,pm1,pm2,j,k,l,m,m_n,fqq)
+  !$OMP parallel private(OMP_N,OMP_ID,jx,jx0,jx1,y,siny,cosy,sinydy &
+  !$OMP ,pm,pm0,pm1,pm2,j,k,l,m,m_n,fqq)
   OMP_N  = OMP_GET_NUM_THREADS()
   OMP_ID = OMP_GET_THREAD_NUM()
 
@@ -290,7 +286,7 @@ subroutine backward(N,qq,yg,jxg,kx,fqqg) bind(C)
  
    y = yg(jx0:jx1)
  
-   call init_geometry(y,jx,siny,cosy,sinydy)
+   call init_geometry(y,jx,cosy,siny,sinydy)
 
    m = 0
    do j = 0,jx-1
@@ -364,7 +360,7 @@ subroutine backward(N,qq,yg,jxg,kx,fqqg) bind(C)
   enddo
   enddo
 
-  !$OMP end parallel
+ !$OMP end parallel
      
   return
 end subroutine backward
